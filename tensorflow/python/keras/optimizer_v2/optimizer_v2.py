@@ -457,17 +457,15 @@ class OptimizerV2(trackable.Trackable):
 
       apply_kwargs = {}
       if isinstance(grad, ops.IndexedSlices):
-        if var.constraint is not None:
-          raise RuntimeError(
-              "Cannot use a constraint function on a sparse variable.")
         if "apply_state" in self._sparse_apply_args:
           apply_kwargs["apply_state"] = apply_state
-        return self._resource_apply_sparse_duplicate_indices(
+        update_op = self._resource_apply_sparse_duplicate_indices(
             grad.values, var, grad.indices, **apply_kwargs)
+      else:
+        if "apply_state" in self._dense_apply_args:
+          apply_kwargs["apply_state"] = apply_state
+        update_op = self._resource_apply_dense(grad, var, **apply_kwargs)
 
-      if "apply_state" in self._dense_apply_args:
-        apply_kwargs["apply_state"] = apply_state
-      update_op = self._resource_apply_dense(grad, var, **apply_kwargs)
       if var.constraint is not None:
         with ops.control_dependencies([update_op]):
           return var.assign(var.constraint(var))

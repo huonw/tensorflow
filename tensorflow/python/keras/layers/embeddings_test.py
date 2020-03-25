@@ -75,6 +75,19 @@ class EmbeddingTest(keras_parameterized.TestCase):
         input_dtype='int32',
         expected_output_dtype='float32')
 
+    testing_utils.layer_test(
+      keras.layers.Embedding,
+      kwargs={'output_dim': 4,
+              'input_dim': 10,
+              'input_length': 2,
+              'embeddings_initializer': 'normal',
+              'embeddings_regularizer': 'l2',
+              'embeddings_constraint': 'unit_norm'},
+      input_shape=(3, 2),
+      input_dtype='int32',
+      expected_output_dtype='float32'
+    )
+
   @keras_parameterized.run_all_keras_modes
   def test_embedding_correctness(self):
     layer = keras.layers.Embedding(output_dim=2, input_dim=2)
